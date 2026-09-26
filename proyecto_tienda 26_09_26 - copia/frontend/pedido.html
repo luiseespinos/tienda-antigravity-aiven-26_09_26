@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FrontEnd Store - Realizar Pedido</title>
+    <link rel="stylesheet" href="css/normalize.css">
+    <link href="https://fonts.googleapis.com/css2?family=Staatliches&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <a href="index.html">
+            <img class="header__logo" src="img/logo.png" alt="Logotipo FrontEnd Store">
+        </a>
+    </header>
+
+    <nav class="navegacion">
+        <a class="navegacion__enlace" href="index.html">Tienda</a>
+        <a class="navegacion__enlace" href="nosotros.html">Nosotros</a>
+        <a class="navegacion__enlace navegacion__enlace--activo" href="pedido.html">Realizar Pedido</a>
+        <a class="navegacion__enlace" href="pedidos.html">Ver Pedidos</a>
+    </nav>
+
+    <main class="contenedor">
+        <h1>Formulario de Pedido</h1>
+        <p class="subtitulo-formulario">Completa el formulario para registrar tu compra en la base de datos MySQL (<strong>tiend</strong>).</p>
+
+        <!-- Indicador de conexión a MySQL -->
+        <div id="indicador-conexion" class="indicador-conexion indicador-conexion--cargando">
+            <span class="punto-conexion"></span>
+            <span id="texto-conexion">Comprobando conexión con MySQL Workbench...</span>
+        </div>
+
+        <!-- Alertas de estado -->
+        <div id="alerta-exito" class="alerta alerta--exito" style="display: none;" role="alert">
+            <h3 class="alerta__titulo">¡Pedido Guardado Exitosamente!</h3>
+            <p id="alerta-exito-mensaje">Tu pedido fue registrado en la tabla <strong>pedidos</strong> de la base de datos <strong>tiend</strong>.</p>
+            <div class="alerta__acciones">
+                <a href="pedidos.html" class="boton boton--secundario">Ver Pedidos Registrados</a>
+                <button type="button" id="btn-nuevo-pedido" class="boton boton--blanco">Registrar Otro Pedido</button>
+            </div>
+        </div>
+
+        <div id="alerta-error" class="alerta alerta--error" style="display: none;" role="alert">
+            <h3 class="alerta__titulo">Error al Enviar el Pedido</h3>
+            <p id="alerta-error-mensaje">No se pudo conectar a la base de datos.</p>
+        </div>
+
+        <form id="formulario-pedido" class="formulario-amplio" novalidate>
+            <div class="formulario-amplio__grid">
+                
+                <!-- Sección 1: Datos del Cliente -->
+                <fieldset class="formulario-amplio__seccion">
+                    <legend class="formulario-amplio__titulo-seccion">1. Información del Cliente</legend>
+
+                    <div class="campo">
+                        <label class="campo__label" for="nombre_cliente">Nombre Completo *</label>
+                        <input 
+                            type="text" 
+                            id="nombre_cliente" 
+                            name="nombre_cliente" 
+                            class="campo__input" 
+                            placeholder="Ej: Juan Pérez Martínez" 
+                            required 
+                            aria-errormessage="error-nombre"
+                        >
+                        <span id="error-nombre" class="campo__error">Por favor ingresa tu nombre completo.</span>
+                    </div>
+
+                    <div class="campo">
+                        <label class="campo__label" for="email">Correo Electrónico *</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            class="campo__input" 
+                            placeholder="Ej: juan.perez@correo.com" 
+                            required 
+                            aria-errormessage="error-email"
+                        >
+                        <span id="error-email" class="campo__error">Ingresa un correo electrónico válido.</span>
+                    </div>
+
+                    <div class="campo">
+                        <label class="campo__label" for="telefono">Teléfono / WhatsApp *</label>
+                        <input 
+                            type="tel" 
+                            id="telefono" 
+                            name="telefono" 
+                            class="campo__input" 
+                            placeholder="Ej: 3001234567" 
+                            required 
+                            aria-errormessage="error-telefono"
+                        >
+                        <span id="error-telefono" class="campo__error">Ingresa un número de contacto válido.</span>
+                    </div>
+
+                    <div class="campo">
+                        <label class="campo__label" for="direccion">Dirección de Entrega *</label>
+                        <input 
+                            type="text" 
+                            id="direccion" 
+                            name="direccion" 
+                            class="campo__input" 
+                            placeholder="Ej: Carrera 15 # 45-20 Apto 301" 
+                            required 
+                            aria-errormessage="error-direccion"
+                        >
+                        <span id="error-direccion" class="campo__error">Ingresa la dirección para el despacho.</span>
+                    </div>
+
+                    <div class="campo">
+                        <label class="campo__label" for="ciudad">Ciudad / Municipio *</label>
+                        <input 
+                            type="text" 
+                            id="ciudad" 
+                            name="ciudad" 
+                            class="campo__input" 
+                            placeholder="Ej: Bogotá, Medellín, Cali, Barranquilla..." 
+                            required 
+                            aria-errormessage="error-ciudad"
+                        >
+                        <span id="error-ciudad" class="campo__error">Ingresa tu ciudad de residencia.</span>
+                    </div>
+                </fieldset>
+
+                <!-- Sección 2: Datos de la Prenda y Compra -->
+                <fieldset class="formulario-amplio__seccion">
+                    <legend class="formulario-amplio__titulo-seccion">2. Selección del Producto</legend>
+
+                    <div class="campo">
+                        <label class="campo__label" for="producto">Diseño de Camisa *</label>
+                        <select id="producto" name="producto" class="campo__select" required aria-errormessage="error-producto">
+                            <option value="" disabled selected>-- Selecciona una Camisa --</option>
+                            <option value="ReactJS">Camisa ReactJS ($25 USD)</option>
+                            <option value="VueJS">Camisa VueJS ($25 USD)</option>
+                            <option value="AngularJS">Camisa AngularJS ($25 USD)</option>
+                            <option value="Node.js">Camisa Node.js ($25 USD)</option>
+                            <option value="Redux">Camisa Redux ($25 USD)</option>
+                            <option value="JavaScript">Camisa JavaScript ($25 USD)</option>
+                            <option value="TypeScript">Camisa TypeScript ($25 USD)</option>
+                            <option value="HTML5">Camisa HTML5 ($25 USD)</option>
+                            <option value="SASS">Camisa SASS ($25 USD)</option>
+                            <option value="Github">Camisa Github ($25 USD)</option>
+                            <option value="GraphQL">Camisa GraphQL ($25 USD)</option>
+                            <option value="WordPress">Camisa WordPress ($25 USD)</option>
+                            <option value="BulmaCSS">Camisa BulmaCSS ($25 USD)</option>
+                            <option value="Drupal">Camisa Drupal ($25 USD)</option>
+                        </select>
+                        <span id="error-producto" class="campo__error">Selecciona un modelo de camisa.</span>
+                    </div>
+
+                    <div class="campo-fila">
+                        <div class="campo">
+                            <label class="campo__label" for="talla">Talla *</label>
+                            <select id="talla" name="talla" class="campo__select" required aria-errormessage="error-talla">
+                                <option value="" disabled selected>-- Talla --</option>
+                                <option value="Chica (S)">Chica (S)</option>
+                                <option value="Mediana (M)">Mediana (M)</option>
+                                <option value="Grande (L)">Grande (L)</option>
+                                <option value="Extragrande (XL)">Extragrande (XL)</option>
+                            </select>
+                            <span id="error-talla" class="campo__error">Elige una talla.</span>
+                        </div>
+
+                        <div class="campo">
+                            <label class="campo__label" for="cantidad">Cantidad *</label>
+                            <input 
+                                type="number" 
+                                id="cantidad" 
+                                name="cantidad" 
+                                class="campo__input" 
+                                value="1" 
+                                min="1" 
+                                max="50" 
+                                required 
+                                aria-errormessage="error-cantidad"
+                            >
+                            <span id="error-cantidad" class="campo__error">Mínimo 1 unidad.</span>
+                        </div>
+                    </div>
+
+                    <div class="campo">
+                        <label class="campo__label" for="metodo_pago">Método de Pago *</label>
+                        <select id="metodo_pago" name="metodo_pago" class="campo__select" required aria-errormessage="error-metodo">
+                            <option value="" disabled selected>-- Selecciona Método de Pago --</option>
+                            <option value="Contra Entrega">Pago Contra Entrega (Efectivo al recibir)</option>
+                            <option value="Transferencia Bancaria">Transferencia Bancaria (Nequi / Daviplata / Bancolombia)</option>
+                            <option value="Tarjeta de Crédito / Débito">Tarjeta de Crédito o Débito</option>
+                            <option value="Efectivo en Tienda">Efectivo en Tienda</option>
+                        </select>
+                        <span id="error-metodo" class="campo__error">Selecciona cómo deseas pagar.</span>
+                    </div>
+
+                    <div class="campo">
+                        <label class="campo__label" for="comentarios">Instrucciones o Comentarios Adicionales</label>
+                        <textarea 
+                            id="comentarios" 
+                            name="comentarios" 
+                            class="campo__textarea" 
+                            rows="3" 
+                            placeholder="Ej: Dejar en recepción, timbre averiado, observaciones sobre la entrega..."
+                        ></textarea>
+                    </div>
+                </fieldset>
+
+            </div>
+
+            <!-- Resumen de Compra en Tiempo Real -->
+            <div class="resumen-pedido">
+                <div class="resumen-pedido__contenido">
+                    <h3 class="resumen-pedido__titulo">Resumen del Pedido</h3>
+                    <div class="resumen-pedido__fila">
+                        <span>Producto:</span>
+                        <strong id="resumen-producto">Ninguno seleccionado</strong>
+                    </div>
+                    <div class="resumen-pedido__fila">
+                        <span>Talla:</span>
+                        <strong id="resumen-talla">-</strong>
+                    </div>
+                    <div class="resumen-pedido__fila">
+                        <span>Precio Unitario:</span>
+                        <strong>$25.00 USD</strong>
+                    </div>
+                    <div class="resumen-pedido__fila">
+                        <span>Cantidad:</span>
+                        <strong id="resumen-cantidad">1</strong>
+                    </div>
+                    <div class="resumen-pedido__fila resumen-pedido__fila--total">
+                        <span>Total a Pagar:</span>
+                        <strong id="resumen-total">$25.00 USD</strong>
+                    </div>
+                </div>
+
+                <div class="resumen-pedido__accion">
+                    <button type="submit" id="btn-submit" class="formulario__submit">
+                        <span id="btn-texto">Confirmar Pedido y Enviar a MySQL</span>
+                        <span id="btn-spinner" class="spinner" style="display: none;"></span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </main>
+
+    <footer class="footer">
+        <p class="footer__texto">Front End Store - Conexión MySQL Workbench 2026.</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
