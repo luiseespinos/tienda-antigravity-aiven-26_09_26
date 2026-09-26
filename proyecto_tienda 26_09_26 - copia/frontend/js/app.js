@@ -3,7 +3,7 @@
  */
 
 // URL del backend en Render (Actualizar cuando Render te dé el enlace final)
-const API_URL = 'https://TU-BACKEND-EN-RENDER.onrender.com';
+const API_URL = 'https://tienda-antigravity-aiven-26-09-26.onrender.com';
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Verificar estado de la conexión con MySQL Workbench
